@@ -10,7 +10,7 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-   def index
+  def index
     @all_ratings = Movie.all_ratings
     redirect = false
    
@@ -27,7 +27,7 @@ class MoviesController < ApplicationController
       @sort_by = nil 
     end
       
-    if params[:commit] == "Refresh" and params[:ratings].include? nil
+    if params[:commit] == "Refresh" and params[:ratings].nil?
       @ratings = nil 
         session[:ratings] = nil
     elsif params[:ratings] 
@@ -53,13 +53,12 @@ class MoviesController < ApplicationController
     elsif @sort_by
         @movies = Movie.order(@sort_by)
     else
-        @movie = Movie.all
+        @movies = Movie.all
     end
    if !@ratings
         @ratings=Hash.new
    end
-   end
-
+  end
 
   def new
     # default: render 'new' template
