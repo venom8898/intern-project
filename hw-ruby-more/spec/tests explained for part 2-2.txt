@@ -1,0 +1,22 @@
+The cake test creates a dessert object named cake and gives it a name of cake and a calorie value of 400.
+It verifies that it can access these values and that they are what they are supposed to be. It also makes 
+sure the deliciouse and healthy methods work by checking if they return the correct values, not healthy
+and deliciouse
+
+The second ceates an dessert object named apple with 75 calories. It then verifies it recieves the correct 
+values from the two methods
+
+the can set test verifies that it can write to the dessert object xxx after it has been created. it changes 
+its name to icecream and itc calories to 80
+
+the jellybean test two tests. it first creates a jellybean object named valilla. it verifies that it has 5 
+calories and that its flavor gets attributed to its name correctly. It also verifies that it recieves a 
+true value for the deliciouse method. The second test verifies that it recieves a false frome the deliciouse
+test when the flavor is licorice
+
+my test verifies that my class raises an argument error if someone tries to create a dessert object with a 
+calorie value less than 0, as there are no foods, especially desserts that have negative calories. My other
+test tests and makes sure a string or non-numeric value is attempted to be set for calories.
+
+
+

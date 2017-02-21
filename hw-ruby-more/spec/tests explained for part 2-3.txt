@@ -1,0 +1,11 @@
+These first few tests in here test the basic functions of the RPS class. they 
+make sure the game plays out as it should for all scenarios. There is also a test 
+to see if if an error is raised if an incorrct arguement is passed in. 
+
+The second set of tests tests the tournament function and sees if it provides the 
+correct winner given an array of matches. there is also a test to see if the tornament 
+function also works for a single match.
+
+my test verifies that the exception works in the tournament function as well by passing 
+an invalid argument to a player later in the tournament.
+

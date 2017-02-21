@@ -1,0 +1,9 @@
+     The sanity check test tests 2 things. The first is that it makes sure the function 
+works properly with an empty string. The second tests makes sure that when it as passesd
+a non empty string it returns the answer in the correct format
+
+The "scream cars for four scar creams" test passes it a specific example and makes sure 
+that it returnt the exact correct result 
+
+the test I wrote verifies that my method works with strings including numbers as well
+
