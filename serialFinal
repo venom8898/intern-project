@@ -1,0 +1,106 @@
+import serial
+import tkinter
+import cv2
+from PIL import Image, ImageTk 
+
+#arduinoData = serial.Serial('COM4', 9600) # Establish the connection on a specific port
+right = '0'
+left= '1'
+up = '2'
+down = '3'
+laser_message = '4'
+fire_message = '5'
+
+width, height = 400, 300
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+def move_up(): 
+    arduinoData.write(up.encode()) 
+    print(up.encode())
+def move_down():
+    arduinoData.write(down.encode())
+    print(down.encode())
+def move_left(): 
+    arduinoData.write(left.encode()) 
+    print(left.encode())
+def move_right():
+    arduinoData.write(right.encode())
+    print(right.encode())
+def Laser():
+    arduinoData.write(laser_message.encode())
+    print(laser_message.encode())
+def Fire():
+    arduinoData.write(fire_message.encode())
+    print(fire_message.encode())
+def Identify():
+    shape_target = entryShape.get()
+    color_target = entryColor.get()
+    print(shape_target)
+    print(color_target)
+def show_frame():
+    _, frame = cap.read()
+    #frame = cv2.flip(frame, 1)
+    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+    img = Image.fromarray(cv2image)
+    imgtk = ImageTk.PhotoImage(image=img)
+    lmain.imgtk = imgtk
+    lmain.configure(image=imgtk)
+    lmain.after(10, show_frame)
+
+
+
+gui_window = tkinter.Tk()
+
+    
+Button =tkinter.Button
+Entry =tkinter.Entry
+Label=tkinter.Label
+
+lmain = Label(gui_window)
+lmain.grid(row=5, column=2)
+
+MyButton1 = Button(gui_window, text="LEFT", command=move_left, width=10)
+MyButton1.grid(row=3, column=1)
+
+
+MyButton2 = Button(gui_window, text="UP", command=move_up ,width=10)
+MyButton2.grid(row=2, column=2)
+
+MyButton3 = Button(gui_window, text="DOWN", command=move_down ,width=10)
+MyButton3.grid(row=4, column=2, pady=(0,60))
+
+
+MyButton4 = Button(gui_window, text="RIGHT", command=move_right ,width=10)
+MyButton4.grid(row=3, column=3, )
+
+
+MyButton5 = Button(gui_window, text="FIRE",command = Fire, width=10, bg= "red")
+MyButton5.grid(row=2, column=4, padx=(60,0))
+
+MyButton6 = Button(gui_window, text="LASER",command = Laser, width=10)
+MyButton6.grid(row=4, column=4, padx=(60,0))
+
+shapeLabel=Label(gui_window,text='Enter Shape to target')
+shapeLabel.grid(row=6, column=2)
+
+entryShape = Entry(gui_window, width=30)
+entryShape.grid(row=7, column=2, pady=(0,15))
+
+colorLabel=Label(gui_window,text='Enter Color to target')
+colorLabel.grid(row=8, column=2)
+
+entryColor = Entry(gui_window, width=30)
+entryColor.grid(row=9, column=2, pady=(0,15))
+
+MyButton7 = Button(gui_window, text="SUBMIT",command = Identify, width=10)
+MyButton7.grid(row=10, column=2)
+
+
+show_frame()
+gui_window.mainloop()
+
+
+
+input ("press enter to exit") 
