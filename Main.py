@@ -1,16 +1,8 @@
 from ShapeDetector import ShapeDetector
-import serial
 
-def main(color, shape):
+def main(color, shape, ardunioData):
     notalign = True
-    aligned = False
-    ardunioData = serial.Serial('COM3', 9600)
-    right = '0'
-    left = '1'
-    up = '2'
-    down = '3'
-    laser = '4'
-    fire = '5'
+    aligned = False'
 
     frame = ShapeDetector.FrameCapure(0)
     ShapeDetector.VideoRealease(0)
