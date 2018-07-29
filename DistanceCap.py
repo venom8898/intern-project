@@ -105,12 +105,12 @@ while True:
         cnts = cnts[0] if imutils.is_cv2() else cnts[1]
         c = max(cnts, key=cv.contourArea)
 
-        boundingBox = cv.minAreaRect(c)
+        boundingBox = cv.minAreaRect(c)	
+
+box = cv.cv2.BoxPoints(boundingBox) if imutils.is_cv2() else cv.boxPoints(boundingBox)
+box = np.int0(box)
+cv.drawContours(img, [box], -1, (0, 255, 0), 2)
 		
-	box = cv.cv2.BoxPoints(boundingBox) if imutils.is_cv2() else cv.boxPoints(boundingBox)
-	box = np.int0(box)
-	cv.drawContours(img, [box], -1, (0, 255, 0), 2)
-		
-    	cv.imshow('image', img)
-    	cv.imwrite("Cap1.png",img)
-    	cv.waitKey(0)
+cv.imshow('image', img)
+cv.imwrite("Cap1.png",img)
+cv.waitKey(0)
