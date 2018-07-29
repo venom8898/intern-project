@@ -1,0 +1,244 @@
+from __future__ import print_function
+import serial
+import tkinter
+import cv2
+from PIL import Image, ImageTk 
+import numpy as np
+import main
+
+
+
+arduinoData = serial.Serial('COM3', 9600) # Establish the connection on a specific port
+right = '0'
+left= '1'
+up = '2'
+down = '3'
+laser_message = '4'
+fire_message = '5'
+shape_target = ""
+color_target = ""
+
+
+width, height = 400, 300
+cap = cv2.VideoCapture(1)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+boundaries = [
+        	([81, 47, 0], [135, 150, 255]),  #blue
+           ([173, 94, 147], [179, 218, 255]),  #red
+        	([22  , 94, 0], [28, 255, 255 ]), #yellow
+            ([158, 40, 0], [168, 255, 255]),# purple
+            ([48, 52, 58], [99, 197, 255])# green
+            ]
+
+def move_up(): 
+    arduinoData.write(up.encode()) 
+    print(up.encode())
+def move_down():
+    arduinoData.write(down.encode())
+    print(down.encode())
+def move_left(): 
+    arduinoData.write(left.encode()) 
+    print(left.encode())
+def move_right():
+    arduinoData.write(right.encode())
+    print(right.encode())
+def Laser():
+    arduinoData.write(laser_message.encode())
+    print(laser_message.encode())
+def Fire():
+    arduinoData.write(fire_message.encode())
+    print(fire_message.encode())
+def Identify():
+    shape_target = entryShape.get()
+    color_target = entryColor.get()
+    print(shape_target)
+    print(color_target)
+    
+def get_blue():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[0] = ([hul,sal,val],[huh,sah,vah])
+def get_red():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[1] = ([hul,sal,val],[huh,sah,vah])
+def get_yellow():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[2] = ([hul,sal,val],[huh,sah,vah])
+def get_purple():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[3] = ([hul,sal,val],[huh,sah,vah])
+def get_green():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[4] = ([hul,sal,val],[huh,sah,vah])
+    
+    
+def show_frame():
+   
+    
+    _, frame = cap.read()
+    frame = cv2.GaussianBlur(frame, (5, 5), 0)
+    
+    # convert to HSV from BGR
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # read trackbar positions for all
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+
+    # make array for final values
+    HSVLOW = np.array([hul, sal, val])
+    HSVHIGH = np.array([huh, sah, vah])
+
+    # apply the range on a mask
+    mask = cv2.inRange(hsv, HSVLOW, HSVHIGH)
+    maskedFrame = cv2.bitwise_and(frame, frame, mask = mask)
+
+    # display the camera and masked images
+    
+    
+    
+    cv2image = cv2.cvtColor(maskedFrame, cv2.COLOR_BGR2RGBA)
+    img = Image.fromarray(cv2image)
+    imgtk = ImageTk.PhotoImage(image=img)
+    lmain.imgtk = imgtk
+    lmain.configure(image=imgtk)
+    lmain.after(10, show_frame)
+
+def print_value(val):
+    print(val)
+
+
+
+gui_window = tkinter.Tk()
+
+    
+Button =tkinter.Button
+Entry =tkinter.Entry
+Label=tkinter.Label
+Scale=tkinter.Scale
+
+lmain = Label(gui_window)
+lmain.grid(row=5, column=2)
+
+MyButton1 = Button(gui_window, text="LEFT", command=move_left, width=10)
+MyButton1.grid(row=3, column=1)
+
+
+MyButton2 = Button(gui_window, text="UP", command=move_up ,width=10)
+MyButton2.grid(row=2, column=2)
+
+MyButton3 = Button(gui_window, text="DOWN", command=move_down ,width=10)
+MyButton3.grid(row=4, column=2, pady=(0,60))
+
+
+MyButton4 = Button(gui_window, text="RIGHT", command=move_right ,width=10)
+MyButton4.grid(row=3, column=3, )
+
+
+MyButton5 = Button(gui_window, text="FIRE",command = Fire, width=10, bg= "red")
+MyButton5.grid(row=2, column=4, padx=(60,0))
+
+MyButton6 = Button(gui_window, text="LASER",command = Laser, width=10)
+MyButton6.grid(row=4, column=4, padx=(60,0))
+
+lmain = Label(gui_window)
+lmain.grid(row=5, column=2)
+
+scale_hl= Scale(orient='horizontal', from_=0, to=179)
+scale_hl.grid(row=6, column=0)
+
+scale_hh= Scale(orient='horizontal', from_=0, to=179)
+scale_hh.grid(row=6, column=1)
+scale_hh.set(179)
+
+scale_sl= Scale(orient='horizontal', from_=0, to=255)
+scale_sl.grid(row=7, column=0)
+
+scale_sh= Scale(orient='horizontal', from_=0, to=255)
+scale_sh.grid(row=7, column=1)
+scale_sh.set(255)
+
+scale_vl= Scale(orient='horizontal', from_=0, to=255)
+scale_vl.grid(row=8, column=0)
+
+scale_vh= Scale(orient='horizontal', from_=0, to=255)
+scale_vh.grid(row=8, column=1)
+scale_vh.set(255)
+
+btnblue = Button(gui_window, text="Blue" ,width=10)
+btnblue.grid(row=9, column=0) 
+
+btnred = Button(gui_window, text="Red" ,width=10)
+btnred.grid(row=9, column=1) 
+
+btnyellow = Button(gui_window, text="Yellow" ,width=10)
+btnyellow.grid(row=11, column=0) 
+
+btnpurple = Button(gui_window, text="Purple" ,width=10)
+btnpurple.grid(row=11, column=1)
+
+btngreen = Button(gui_window, text="Green" ,width=10)
+btngreen.grid(row=13, column=0)
+
+shapeLabel=Label(gui_window,text='Enter Shape to target')
+shapeLabel.grid(row=10, column=2)
+
+entryShape = Entry(gui_window, width=30)
+entryShape.grid(row=11, column=2, pady=(0,15))
+
+colorLabel=Label(gui_window,text='Enter Color to target')
+colorLabel.grid(row=12, column=2)
+
+entryColor = Entry(gui_window, width=30)
+entryColor.grid(row=13, column=2, pady=(0,15))
+
+MyButton7 = Button(gui_window, text="SUBMIT",command = Identify, width=10)
+MyButton7.grid(row=14, column=2,padx=(20,0))
+
+MyButton8 = Button(gui_window, text="TARGET",command = lambda: main.main(shape_target,color_target, arduinoData), width=10)
+MyButton8.grid(row=15, column=3)
+
+hul = scale_hl.get()
+huh = scale_hh.get()
+sal = scale_sl.get()
+sah = scale_sh.get()
+val = scale_vl.get()
+vah = scale_vh.get()
+
+
+show_frame()
+gui_window.mainloop()
+
+
+
+
