@@ -113,4 +113,8 @@ cv.drawContours(img, [box], -1, (0, 255, 0), 2)
 		
 cv.imshow('image', img)
 cv.imwrite("Cap1.png",img)
-cv.waitKey(0)
+key = cv.waitKey(30)
+if(key == ord('q') or key == 27):
+	cap.release()
+	cv.destroyAllWindows
+	break
