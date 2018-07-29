@@ -107,10 +107,10 @@ while True:
 
         img = cv.minAreaRect(c)
 		
-		box = cv2.cv.BoxPoints(marker) if imutils.is_cv2() else cv2.boxPoints(marker)
-		box = np.int0(box)
-		cv2.drawContours(img, [box], -1, (0, 255, 0), 2)
+	box = cv2.cv.BoxPoints(marker) if imutils.is_cv2() else cv2.boxPoints(marker)
+	box = np.int0(box)
+	cv.drawContours(img, [box], -1, (0, 255, 0), 2)
 		
-    cv.imshow('image', img)
-    cv.imwrite("Cap1.png",img)
-    cv.waitKey(0)
+    	cv.imshow('image', img)
+    	cv.imwrite("Cap1.png",img)
+    	cv.waitKey(0)
