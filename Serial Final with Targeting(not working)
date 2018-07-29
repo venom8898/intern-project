@@ -529,7 +529,7 @@ MyButton8 = Button(gui_window, text="TARGET",command = lambda: target(shape_targ
 MyButton8.grid(row=15, column=3)
 
 MyButton8 = Button(gui_window, text="IMAGE",command = lambda: show_images(color_target), width=10)
-MyButton8.grid(row=15, column=3)
+MyButton8.grid(row=15, column=4)
 
 hul = scale_hl.get()
 huh = scale_hh.get()
