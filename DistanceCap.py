@@ -107,7 +107,7 @@ while True:
 
         boundingBox = cv.minAreaRect(c)
 		
-	box = cv2.cv.BoxPoints(boundingBox) if imutils.is_cv2() else cv2.boxPoints(boundingBox)
+	box = cv.cv2.BoxPoints(boundingBox) if imutils.is_cv2() else cv.boxPoints(boundingBox)
 	box = np.int0(box)
 	cv.drawContours(img, [box], -1, (0, 255, 0), 2)
 		
