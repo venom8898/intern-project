@@ -1,17 +1,23 @@
 from ShapeDetector import ShapeDetector
+#import serial
 
-def main(color, shape, ardunioData):
+def main(color, shape):
     notalign = True
-    aligned = False'
+    aligned = False
+    ardunioData = serial.Serial('COM3', 9600)
+    right = '0'
+    left = '1'
+    up = '2'
+    down = '3'
+    laser = '4'
+    fire = '5'
 
-    frame = ShapeDetector.FrameCapure(0)
-    ShapeDetector.VideoRealease(0)
+    frame = ShapeDetector.FrameCapure()
     while aligned == False:
         ShapeDetector.ColorShapeReader(color)
         image = ShapeDetector.ImagewColor(frame)
         coordinateX, coordinateY = ShapeDetector.ShapeDiscover(image,shape)
         centerX, centerY = ShapeDetector.FindCenterImage(image)
-        distanceAway = ShapeDetector.DistanceTest(frame, shape)
         notalign = False
         if(centerY < coordinateY):
             notalign = True
@@ -32,7 +38,13 @@ def main(color, shape, ardunioData):
         if(notalign == False):
             aligned = True
     #end while
-    ardunioData.write(fire.encode())
+    #now adjust for distance
+    distanceAway = ShapeDetector.DistanceTest(frame, shape)
+    adjustment = ShapeDetector.AdjustTarget(distanceAway)
+    while(adjustment > 0):
+        ardunioData.write(up.encode())
+        adjustment = adjustment - 1
+    ardunioData.write(fire.encode())#FIRE!!!
     return 0
 
 #do{

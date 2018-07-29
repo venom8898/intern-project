@@ -1,7 +1,7 @@
 import cv2 as cv
 import imutils
-import numpy as np
 from PIL import Image
+import math
 
 
 class ShapeDetector:
@@ -144,13 +144,14 @@ class ShapeDetector:
             #print("Exiting")
             #break
 
-    def FrameCapure(b):
-        cap = cv.VideoCapture(b)
-        while True:
-            ret, frame = cap.read()
-            if frame is None:
-                print("No camera found")
-                break
+    def FrameCapure(self):
+        cap = cv.VideoCapture(0)
+        ret, frame = cap.read()
+        if frame is None:
+            print("No camera found")
+        cap.release()
+
+
         return frame
 
     def ColorShapeReader(color):
@@ -188,11 +189,6 @@ class ShapeDetector:
         frame_blur = cv.GaussianBlur(frame_threshold, (5, 5), 0)
         return frame_blur
 
-    def VideoRealease(cap):
-        cap.release()
-        cv.destroyAllWindows()
-        return 0
-
     def FindCenterImage(cap):
         image = Image.open(cap)
         width, height = image.size
@@ -202,9 +198,15 @@ class ShapeDetector:
 
         return centerX, centerY
 
-    def AdjustTarget(self):
+    def AdjustTarget(distance):
         heightDiff = 0
-        initalVelocity = 0
+        initalVelocity = 10.15
         gravity = 9.8
+        distance = distance * 0.3048
+
+        angle = math.atan((2*initalVelocity*heightDiff)/ (gravity * distance))
+        #transition angle to times we have to go up
+        writetime = (angle * 10)/ 45
+        return writetime
 
 
