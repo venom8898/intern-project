@@ -1,5 +1,6 @@
 import cv2 as cv
 import imutils
+import numpy as np
 
 max_value = 255
 max_value_H = 360 // 2
@@ -105,7 +106,11 @@ while True:
         c = max(cnts, key=cv.contourArea)
 
         img = cv.minAreaRect(c)
-
+		
+		box = cv2.cv.BoxPoints(marker) if imutils.is_cv2() else cv2.boxPoints(marker)
+		box = np.int0(box)
+		cv2.drawContours(img, [box], -1, (0, 255, 0), 2)
+		
     cv.imshow('image', img)
     cv.imwrite("Cap1.png",img)
     cv.waitKey(0)
