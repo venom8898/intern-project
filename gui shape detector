@@ -1,0 +1,293 @@
+from __future__ import print_function
+import tkinter
+import cv2
+from PIL import Image, ImageTk 
+import numpy as np
+
+
+shape_target = ""
+color_target = ""
+
+
+width, height = 400, 300
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+boundaries = [
+        	([81, 47, 0], [135, 150, 255]),  #blue
+           ([173, 94, 147], [179, 218, 255]),  #red
+        	([22  , 94, 0], [28, 255, 255 ]), #yellow
+            ([158, 40, 0], [168, 255, 255]),# purple
+            ([48, 52, 58], [99, 197, 255])# green
+            ]
+
+def shape_detect():
+
+    #take a snapshot ******************************************************* 
+    cam = cap
+    ret, frame = cam.read()
+    img_name = "opencv_frame.png"
+    cv2.imwrite(img_name, frame)
+    print("opencv_frame written!".format(img_name))
+    cam.release()
+    
+    #open it for color detection *******************************************
+    image = cv2.imread('opencv_frame.png')
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    
+    #colors
+    blue = boundaries[0]
+    red = boundaries[1]
+    yellow = boundaries[2]
+    purple = boundaries[3]
+    green = boundaries[4]
+    
+    #the color that were looking for
+    color = red
+    
+    lower = np.array(color[0],dtype = "uint8")
+    upper = np.array(color[1],dtype = "uint8")
+    
+    mask = cv2.inRange(hsv, lower, upper)
+    output = cv2.bitwise_and(image, image, mask = mask)
+    image = output
+    #cv2.imshow("Image", image)
+    
+    # Perform shape detection **********************************************
+    
+    # convert the color image into grayscale
+    grayScale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Find edges in the image using canny edge detection method
+    # Calculate lower threshold and upper threshold using sigma = 0.33
+    sigma = 0.33
+    v = np.median(grayScale)
+    low = int(max(0, (1.0 - sigma) * v))
+    high = int(min(255, (1.0 + sigma) * v))
+    
+    edged = cv2.Canny(grayScale, low, high)
+    
+    # cv2.RETR_EXTERNAL is passed to find the outermost contours (because we want to outline the shapes)
+    # cv2.CHAIN_APPROX_SIMPLE is removing redundant points along a line
+    (_, cnts, _) = cv2.findContours(edged,
+                                    cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    def detectShape(cnt):
+        shape = 'unknown'
+        # calculate perimeter using
+        
+        peri = cv2.arcLength(c, True)
+        if peri > 80:    
+            print(peri)
+            # apply contour approximation and store the result in vertices
+            vertices = cv2.approxPolyDP(c, 0.04 * peri, True)
+        
+            # If the shape it triangle, it will have 3 vertices
+            if len(vertices) == 3:
+                shape = 'triangle'
+        
+            # if the shape has 4 vertices, it is either a square or
+            # a rectangle
+            elif len(vertices) == 4:
+                # using the boundingRect method calculate the width and height
+                # of enclosing rectange and then calculte aspect ratio
+        
+                x, y, width, height = cv2.boundingRect(vertices)
+                aspectRatio = float(width) / height
+        
+                # a square will have an aspect ratio that is approximately
+                # equal to one, otherwise, the shape is a rectangle
+                if aspectRatio >= 0.95 and aspectRatio <= 1.05:
+                    shape = "square"
+                else:
+                    shape = "rectangle"
+        
+            # if the shape is a pentagon, it will have 5 vertices
+            elif len(vertices) == 5:
+                shape = "pentagon"
+        
+        
+            elif len(vertices) == 10:
+                shape = "Star"
+            # otherwise, we assume the shape is a circle
+            else:
+                shape = "circle"
+        
+            # return the name of the shape
+            
+            return shape
+    # Now we will loop over every contour
+    # call detectShape() for it and
+    # write the name of shape in the center of image
+    finding=True
+    # loop over the contours
+    for c in cnts:
+        # compute the moment of contour
+        M = cv2.moments(c)
+        # From moment we can calculte area, centroid etc
+        # The center or centroid can be calculated as follows
+        if  M['m00'] != 0:
+            cX = int(M['m10'] / M['m00'])
+            cY = int(M['m01'] / M['m00'])
+        else:
+            finding=False
+        # call detectShape for contour c
+        shape = detectShape(c)
+        if shape != None:
+            print (shape)
+    
+        # Outline the contours    
+        cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+    
+        # Write the name of shape on the center of shapes
+        if finding == True:
+            cv2.putText(image, shape, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, (255, 255, 255), 2)
+        
+    
+        # show the output image
+        cv2.imshow("Image", image)
+    
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+        
+    #begin calculation to move turret
+
+
+    
+def get_blue():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[0] = ([hul,sal,val],[huh,sah,vah])
+    print(boundaries[0])
+def get_red():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[1] = ([hul,sal,val],[huh,sah,vah])
+    print(boundaries[1])
+def get_yellow():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[2] = ([hul,sal,val],[huh,sah,vah])
+    print(boundaries[2])
+def get_purple():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[3] = ([hul,sal,val],[huh,sah,vah])
+    print(boundaries[0])
+def get_green():
+    hul = scale_hl.get()
+    huh = scale_hh.get()
+    sal = scale_sl.get()
+    sah = scale_sh.get()
+    val = scale_vl.get()
+    vah = scale_vh.get()
+    boundaries[4] = ([hul,sal,val],[huh,sah,vah])
+    print(boundaries[0])
+    
+def show_frame():
+    try:
+        
+        _, frame = cap.read()
+        #frame = cv2.GaussianBlur(frame, (5, 5), 0)
+        
+        # convert to HSV from BGR
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    
+        # read trackbar positions for all
+        hul = scale_hl.get()
+        huh = scale_hh.get()
+        sal = scale_sl.get()
+        sah = scale_sh.get()
+        val = scale_vl.get()
+        vah = scale_vh.get()
+    
+        # make array for final values
+        HSVLOW = np.array([hul, sal, val])
+        HSVHIGH = np.array([huh, sah, vah])
+    
+        # apply the range on a mask
+        mask = cv2.inRange(hsv, HSVLOW, HSVHIGH)
+        maskedFrame = cv2.bitwise_and(frame, frame, mask = mask)
+    
+        # display the camera and masked images
+        
+        
+        
+        cv2image = cv2.cvtColor(maskedFrame, cv2.COLOR_BGR2RGBA)
+        img = Image.fromarray(cv2image)
+        imgtk = ImageTk.PhotoImage(image=img)
+        lmain.imgtk = imgtk
+        lmain.configure(image=imgtk)
+        lmain.after(10, show_frame)
+    except:
+        print ("FUCK")
+
+gui_window = tkinter.Tk()
+
+    
+Button =tkinter.Button
+Entry =tkinter.Entry
+Label=tkinter.Label
+Scale=tkinter.Scale
+
+lmain = Label(gui_window)
+lmain.grid(row=5, column=2)
+
+scale_hl= Scale(orient='horizontal', from_=0, to=179)
+scale_hl.grid(row=6, column=0)
+
+scale_hh= Scale(orient='horizontal', from_=0, to=179)
+scale_hh.grid(row=6, column=1)
+scale_hh.set(179)
+
+scale_sl= Scale(orient='horizontal', from_=0, to=255)
+scale_sl.grid(row=7, column=0)
+
+scale_sh= Scale(orient='horizontal', from_=0, to=255)
+scale_sh.grid(row=7, column=1)
+scale_sh.set(255)
+
+scale_vl= Scale(orient='horizontal', from_=0, to=255)
+scale_vl.grid(row=8, column=0)
+
+scale_vh= Scale(orient='horizontal', from_=0, to=255)
+scale_vh.grid(row=8, column=1)
+scale_vh.set(255)
+
+btnblue = Button(gui_window, text="Blue",command = get_blue ,width=10)
+btnblue.grid(row=9, column=0) 
+
+btnred = Button(gui_window, text="Red",command = get_red ,width=10)
+btnred.grid(row=9, column=1) 
+
+btnyellow = Button(gui_window, text="Yellow",command = get_yellow ,width=10)
+btnyellow.grid(row=11, column=0) 
+
+btnpurple = Button(gui_window, text="Purple",command = get_purple ,width=10)
+btnpurple.grid(row=11, column=1)
+
+btngreen = Button(gui_window, text="Green",command = get_green ,width=10)
+btngreen.grid(row=13, column=0)
+
+MyButton8 = Button(gui_window, text="IMAGE",command =shape_detect, width=10)
+MyButton8.grid(row=15, column=4)
+
+show_frame()
+gui_window.mainloop()
