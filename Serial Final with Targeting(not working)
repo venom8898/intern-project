@@ -104,43 +104,47 @@ def get_green():
 def show_frame():
    
     
-    _, frame = cap.read()
-    frame = cv2.GaussianBlur(frame, (5, 5), 0)
+    try:
+        
+        _, frame = cap.read()
+        #frame = cv2.GaussianBlur(frame, (5, 5), 0)
+        
+        # convert to HSV from BGR
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     
-    # convert to HSV from BGR
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-    # read trackbar positions for all
-    hul = scale_hl.get()
-    huh = scale_hh.get()
-    sal = scale_sl.get()
-    sah = scale_sh.get()
-    val = scale_vl.get()
-    vah = scale_vh.get()
-
-    # make array for final values
-    HSVLOW = np.array([hul, sal, val])
-    HSVHIGH = np.array([huh, sah, vah])
-
-    # apply the range on a mask
-    mask = cv2.inRange(hsv, HSVLOW, HSVHIGH)
-    maskedFrame = cv2.bitwise_and(frame, frame, mask = mask)
-
-    # display the camera and masked images
+        # read trackbar positions for all
+        hul = scale_hl.get()
+        huh = scale_hh.get()
+        sal = scale_sl.get()
+        sah = scale_sh.get()
+        val = scale_vl.get()
+        vah = scale_vh.get()
     
+        # make array for final values
+        HSVLOW = np.array([hul, sal, val])
+        HSVHIGH = np.array([huh, sah, vah])
     
+        # apply the range on a mask
+        mask = cv2.inRange(hsv, HSVLOW, HSVHIGH)
+        maskedFrame = cv2.bitwise_and(frame, frame, mask = mask)
     
-    cv2image = cv2.cvtColor(maskedFrame, cv2.COLOR_BGR2RGBA)
-    img = Image.fromarray(cv2image)
-    imgtk = ImageTk.PhotoImage(image=img)
-    lmain.imgtk = imgtk
-    lmain.configure(image=imgtk)
-    lmain.after(10, show_frame)
+        # display the camera and masked images
+        
+        
+        
+        cv2image = cv2.cvtColor(maskedFrame, cv2.COLOR_BGR2RGBA)
+        img = Image.fromarray(cv2image)
+        imgtk = ImageTk.PhotoImage(image=img)
+        lmain.imgtk = imgtk
+        lmain.configure(image=imgtk)
+        lmain.after(10, show_frame)
+    except:
+        print ("FUCK")
 
 def print_value(val):
     print(val)
 
-def target(shapeT,colorT):    
+def target():    
     finished = False
     while finished == False:
         cam = cv2.VideoCapture(0)
@@ -163,15 +167,15 @@ def target(shapeT,colorT):
         
         color=""
         #the color that were looking for
-        if colorT=="red":
+        if color_target=="red":
             color==red
-        if colorT=="blue":
+        if color_target=="blue":
             color==blue
-        if colorT=="green":
+        if color_target=="green":
             color==green
-        if colorT=="yellow":
+        if color_target=="yellow":
             color==yellow
-        if colorT=="purple":
+        if color_target=="purple":
             color==purple
         lower = np.array(color[0],dtype = "uint8")
         upper = np.array(color[1],dtype = "uint8")
@@ -204,7 +208,7 @@ def target(shapeT,colorT):
             # calculate perimeter using
             
             peri = cv2.arcLength(c, True)
-            if peri > 500:    
+            if peri > 50:    
                 print(peri)
                 # apply contour approximation and store the result in vertices
                 vertices = cv2.approxPolyDP(c, 0.04 * peri, True)
@@ -261,7 +265,7 @@ def target(shapeT,colorT):
             shape = detectShape(c)
             if shape != None:
                 print (shape)
-            if shape == shapeT:
+            if shape == shape_target:
                 centerShape=[cX,cY]
         
             # Outline the contours    
@@ -301,9 +305,10 @@ def target(shapeT,colorT):
         if imageH==shapeH and imageV==shapeV:
             arduinoData.write(fire.encode())
             finished = True
-def show_images(colorT):
+def show_images():
     
     #take a snapshot ******************************************************* 
+    print(boundaries[1])
     cam = cv2.VideoCapture(0)
     ret, frame = cam.read()
     img_name = "opencv_frame.png"
@@ -323,17 +328,17 @@ def show_images(colorT):
     purple = boundaries[3]
     green = boundaries[4]
     
-    color=""
+    color=	([0, 0, 0], [0, 0, 0])
         #the color that were looking for
-    if colorT=="red":
+    if color_target=="red":
             color==red
-    if colorT=="blue":
+    if color_target=="blue":
             color==blue
-    if colorT=="green":
+    if color_target=="green":
             color==green
-    if colorT=="yellow":
+    if color_target=="yellow":
             color==yellow
-    if colorT=="purple":
+    if color_target=="purple":
             color==purple
     
     lower = np.array(color[0],dtype = "uint8")
@@ -362,12 +367,13 @@ def show_images(colorT):
     (_, cnts, _) = cv2.findContours(edged,
                                     cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
+ 
     def detectShape(cnt):
         shape = 'unknown'
         # calculate perimeter using
         
         peri = cv2.arcLength(c, True)
-        if peri > 500:    
+        if peri > 80:    
             print(peri)
             # apply contour approximation and store the result in vertices
             vertices = cv2.approxPolyDP(c, 0.04 * peri, True)
@@ -409,7 +415,7 @@ def show_images(colorT):
     # Now we will loop over every contour
     # call detectShape() for it and
     # write the name of shape in the center of image
-    
+    finding=True
     # loop over the contours
     for c in cnts:
         # compute the moment of contour
@@ -419,7 +425,8 @@ def show_images(colorT):
         if  M['m00'] != 0:
             cX = int(M['m10'] / M['m00'])
             cY = int(M['m01'] / M['m00'])
-    
+        else:
+            finding=False
         # call detectShape for contour c
         shape = detectShape(c)
         if shape != None:
@@ -429,8 +436,9 @@ def show_images(colorT):
         cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
     
         # Write the name of shape on the center of shapes
-        cv2.putText(image, shape, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5, (255, 255, 255), 2)
+        if finding == True:
+            cv2.putText(image, shape, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, (255, 255, 255), 2)
         
     
         #show the output image
@@ -525,10 +533,10 @@ entryColor.grid(row=13, column=2, pady=(0,15))
 MyButton7 = Button(gui_window, text="SUBMIT",command = Identify, width=10)
 MyButton7.grid(row=14, column=2,padx=(20,0))
 
-MyButton8 = Button(gui_window, text="TARGET",command = lambda: target(shape_target,color_target), width=10)
+MyButton8 = Button(gui_window, text="TARGET",command = target, width=10)
 MyButton8.grid(row=15, column=3)
 
-MyButton8 = Button(gui_window, text="IMAGE",command = lambda: show_images(color_target), width=10)
+MyButton8 = Button(gui_window, text="IMAGE",command = show_images, width=10)
 MyButton8.grid(row=15, column=4)
 
 hul = scale_hl.get()
