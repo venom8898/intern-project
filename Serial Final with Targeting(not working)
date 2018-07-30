@@ -50,6 +50,8 @@ def Fire():
     arduinoData.write(fire_message.encode())
     print(fire_message.encode())
 def Identify():
+    global shape_target
+    global color_target
     shape_target = entryShape.get()
     color_target = entryColor.get()
     print(shape_target)
@@ -144,7 +146,9 @@ def show_frame():
 def print_value(val):
     print(val)
 
-def target():    
+def target(): 
+    global color_target
+    global shape_target
     finished = False
     while finished == False:
         cam = cv2.VideoCapture(0)
@@ -168,15 +172,15 @@ def target():
         color=""
         #the color that were looking for
         if color_target=="red":
-            color==red
+            color=red
         if color_target=="blue":
-            color==blue
+            color=blue
         if color_target=="green":
-            color==green
+            color=green
         if color_target=="yellow":
-            color==yellow
+            color=yellow
         if color_target=="purple":
-            color==purple
+            color=purple
         lower = np.array(color[0],dtype = "uint8")
         upper = np.array(color[1],dtype = "uint8")
         
@@ -308,7 +312,9 @@ def target():
 def show_images():
     
     #take a snapshot ******************************************************* 
+    global color_target
     print(boundaries[1])
+    print (color_target)
     cam = cv2.VideoCapture(0)
     ret, frame = cam.read()
     img_name = "opencv_frame.png"
@@ -331,15 +337,15 @@ def show_images():
     color=	([0, 0, 0], [0, 0, 0])
         #the color that were looking for
     if color_target=="red":
-            color==red
+            color=red
     if color_target=="blue":
-            color==blue
+            color=blue
     if color_target=="green":
-            color==green
+            color=green
     if color_target=="yellow":
-            color==yellow
+            color=yellow
     if color_target=="purple":
-            color==purple
+            color=purple
     
     lower = np.array(color[0],dtype = "uint8")
     upper = np.array(color[1],dtype = "uint8")
